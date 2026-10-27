@@ -2,5 +2,4 @@ pypdf
 python-docx
 httpx
 pyyaml
-pytest
 flask

@@ -1,0 +1,13 @@
+# Copy this file to config.yaml and fill in your own paths/preferences.
+# config.yaml is gitignored, so your resume path and tuning never get committed.
+
+# Greenhouse board tokens: the slug in boards.greenhouse.io/<token>
+boards: [stripe, cloudflare, datadog, databricks, mongodb, elastic, gitlab, okta, twilio, airbnb]
+target_titles: ["site reliability", "sre", "engineering manager", "reliability", "devops", "infrastructure"]
+include_locations: ["remote - us", "remote, us", "remote - united states", "remote, united states"]
+exclude_locations: ["washington, dc"]
+extra_skills: []
+min_score: 40
+# Resume sources: ATS resume + master resume (skills are the union of both)
+resume: "/path/to/your/resume.docx"
+master_resume: []

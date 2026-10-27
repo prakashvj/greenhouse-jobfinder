@@ -6,3 +6,7 @@ data/
 output/
 server.log
 server.err
+config.yaml
+*.egg-info/
+dist/
+build/

@@ -8,6 +8,9 @@ include_locations: ["remote - us", "remote, us", "remote - united states", "remo
 exclude_locations: ["washington, dc"]
 extra_skills: []
 min_score: 40
-# Resume sources: ATS resume + master resume (skills are the union of both)
+# One-time migration seed only: used to create a "Default" profile the first time the web UI
+# runs with an empty profiles database. After that, profiles (resume + skills + job types) are
+# managed per-person from the Profile tab in the UI, not from this file. `jobfinder.cli` (the
+# batch CLI report) still reads these directly on every run, independent of the web UI's profiles.
 resume: "/path/to/your/resume.docx"
 master_resume: []

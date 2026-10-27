@@ -40,7 +40,10 @@ SKILLS = {
     "linux": ["linux"],
     "networking": ["networking", "tcp/ip", "dns", "load balancing"],
     "ansible/chef/puppet": ["ansible", "chef", "puppet"],
-    "jenkins/ci": ["jenkins", "github actions", "gitlab ci", "azure devops"],
+    "jenkins": ["jenkins"],
+    "github actions": ["github actions"],
+    "gitlab ci": ["gitlab ci"],
+    "azure devops": ["azure devops"],
     "splunk/elk": ["splunk", "elasticsearch", "elk"],
     "kafka": ["kafka"],
     "redis": ["redis"],
@@ -70,3 +73,8 @@ def extract_skills(text, extra=()):
     """Return canonical skills (plus user-supplied extras) found in text."""
     found = {c for c, aliases in SKILLS.items() if any(has_term(text, a) for a in aliases)}
     return found | {e.lower() for e in extra}
+
+
+def detect_skills(text):
+    """Canonical skills whose name or any alias appears in text (used for job/JD text)."""
+    return {c for c, aliases in SKILLS.items() if any(has_term(text, t) for t in aliases + [c])}

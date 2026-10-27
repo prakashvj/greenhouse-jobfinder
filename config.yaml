@@ -1,0 +1,11 @@
+# Greenhouse board tokens: the slug in boards.greenhouse.io/<token>
+boards: [stripe, cloudflare, datadog, databricks, mongodb, elastic, gitlab, okta, twilio, airbnb, pinterest, dropbox, reddit, coinbase, samsara, figma, roblox, discord, instacart,
+         anthropic, asana, brex, chime, duolingo, fastly, flexport, gusto, lyft, newrelic, pagerduty, robinhood, scaleai, smartsheet, toast, vercel, zscaler, qualtrics, mixpanel, launchdarkly, fivetran, rubrik, sofi, cockroachlabs, twitch, peloton]
+target_titles: ["site reliability", "sre", "engineering manager", "reliability", "devops", "infrastructure"]
+include_locations: [charlotte, "north carolina", "remote - us", "remote, us", "remote - united states", "remote, united states", "remote-us", "us-remote"]  # Seattle: add seattle, bellevue, redmond
+exclude_locations: ["washington, dc", "washington dc", "d.c."]
+extra_skills: []
+min_score: 95
+# Resume sources: ATS resume + master resume (skills are the union of both)
+resume: 'C:\Users\praka\OneDrive\Resume\0NEW_Resume\Jyothi_SRSREMgr.docx'
+master_resume: ['C:\Users\praka\Downloads\master-resume-full.md']

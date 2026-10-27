@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greenhouse Job Finder</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1d2330;--muted:#677084;--line:#e1e5ec;--accent:#1f6feb;--ok:#137a3f;--okbg:#e3f5ea;--miss:#a4400b;--missbg:#fdebdc}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b2029;--text:#e6e9ef;--muted:#98a1b3;--line:#2b3240;--accent:#58a6ff;--ok:#5fd08a;--okbg:#17332379;--miss:#f0a068;--missbg:#3b2a1c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,Segoe UI,sans-serif}
+header{padding:16px 24px;border-bottom:1px solid var(--line);background:var(--card);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+h1{font-size:18px;margin:0}
+.muted{color:var(--muted);font-size:12px}
+main{padding:16px 24px;max-width:1500px;margin:auto}
+.filters{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+fieldset{border:0;padding:0;margin:0}
+legend,label.t{font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:6px;display:block;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{border:1px solid var(--line);border-radius:999px;padding:3px 10px;cursor:pointer;user-select:none}
+.chips input{display:none}
+.chips label:has(input:checked){background:var(--accent);border-color:var(--accent);color:#fff}
+input[type=text],input[type=number]{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text)}
+.row{display:flex;gap:8px;align-items:center}
+.check{display:flex;gap:6px;align-items:center;margin-top:6px}
+button{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer}
+button.sec{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.bar{display:flex;gap:10px;align-items:center;margin:14px 0;flex-wrap:wrap}
+.tablewrap{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:auto}
+table{border-collapse:collapse;width:100%}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{position:sticky;top:0;background:var(--card);cursor:pointer;white-space:nowrap;font-size:12px;text-transform:uppercase;color:var(--muted)}
+td.score{white-space:nowrap;font-weight:700;width:90px}
+.meter{height:5px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent)}
+.tag{display:inline-block;border-radius:4px;padding:1px 7px;margin:2px 3px 2px 0;font-size:12px}
+.tag.ok{background:var(--okbg);color:var(--ok)}.tag.miss{background:var(--missbg);color:var(--miss)}
+.reason b{font-size:11px;text-transform:uppercase;color:var(--muted)}
+a{color:var(--accent);text-decoration:none;font-weight:600}a:hover{text-decoration:underline}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Greenhouse Job Finder</h1><div class="muted" id="skills"></div></div>
+  <div class="row"><span class="muted" id="status"></span><button class="sec" id="refresh">Refresh jobs</button></div>
+</header>
+<main>
+  <form class="filters" id="f">
+    <fieldset><legend>Job type</legend><div class="chips" id="types"></div>
+      <label class="t" style="margin-top:10px">Extra title keywords</label>
+      <input type="text" id="keywords" placeholder="e.g. cloud, observability"></fieldset>
+    <fieldset><legend>City</legend>
+      <input type="text" id="cities" value="Charlotte" placeholder="Charlotte, Seattle, Bellevue" list="cl">
+      <datalist id="cl"><option>Charlotte<option>Raleigh<option>Seattle<option>Bellevue<option>Redmond<option>Atlanta<option>Austin<option>New York<option>San Francisco<option>Chicago<option>Boston<option>Denver<option>Dallas</datalist>
+      <label class="check"><input type="checkbox" id="remote" checked> Include US-remote roles</label>
+      <div class="muted">Leave city empty and untick remote for all locations.</div></fieldset>
+    <fieldset><legend>Salary (annual USD)</legend>
+      <div class="row"><input type="number" id="smin" placeholder="Min" step="10000"><span>–</span><input type="number" id="smax" placeholder="Max" step="10000"></div>
+      <label class="check"><input type="checkbox" id="reqsal"> Only jobs that list a salary</label>
+      <div class="muted">Jobs with no listed salary are kept unless ticked.</div></fieldset>
+    <fieldset><legend>Employment type</legend><div class="chips" id="emp"></div>
+      <label class="t" style="margin-top:10px">Min ATS score: <span id="mv">30</span></label>
+      <input type="range" id="minats" min="0" max="100" value="30" style="width:100%"></fieldset>
+  </form>
+  <div class="bar"><button id="go">Search</button><span class="muted" id="count"></span></div>
+  <div class="tablewrap"><table id="t"><thead><tr>
+    <th data-k="ats">ATS score</th><th data-k="title">Job</th><th data-k="company">Company</th>
+    <th data-k="location">Location</th><th data-k="employment">Type</th><th data-k="salary">Salary</th><th>Skills: matching / missing</th>
+  </tr></thead><tbody></tbody></table><div class="empty" id="empty">Pick filters and press Search.</div></div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+let rows=[],sortK='ats',sortDir=-1;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money=n=>'$'+Math.round(n/1000)+'K';
+const EMPLABEL={full_time:'Full-time',part_time:'Part-time',contract:'Contract',intern:'Intern'};
+
+async function init(){
+  const m=await (await fetch('/api/meta')).json();
+  $('#skills').textContent='Resume skills: '+m.skills.join(', ');
+  $('#types').innerHTML=m.job_types.map(t=>`<label><input type="checkbox" value="${esc(t)}"> ${esc(t)}</label>`).join('');
+  $('#emp').innerHTML=Object.entries(m.employment).map(([k,v])=>`<label><input type="checkbox" value="${k}" ${k==='full_time'?'checked':''}> ${esc(v)}</label>`).join('');
+  poll();
+}
+async function poll(){
+  const s=await (await fetch('/api/status')).json();
+  $('#status').textContent=s.loading?`Loading boards ${s.done}/${s.total}…`:`${s.jobs.toLocaleString()} jobs cached`+(s.fetched_at?` · updated ${new Date(s.fetched_at*1000).toLocaleString()}`:'');
+  if(s.loading) setTimeout(poll,1500);
+}
+const checked=sel=>[...document.querySelectorAll(sel+' input:checked')].map(i=>i.value);
+const num=id=>$(id).value===''?null:Number($(id).value);
+
+async function run(){
+  $('#go').disabled=true;
+  const body={job_types:checked('#types'),keywords:$('#keywords').value,
+    cities:$('#cities').value.split(','),remote_us:$('#remote').checked,
+    salary_min:num('#smin'),salary_max:num('#smax'),require_salary:$('#reqsal').checked,
+    employment:checked('#emp'),min_ats:Number($('#minats').value)};
+  const r=await (await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
+  rows=r.rows;$('#go').disabled=false;
+  $('#count').textContent=`${r.total} matching jobs`+(r.total>rows.length?` (showing top ${rows.length})`:'');
+  render();
+}
+function render(){
+  const key=r=>sortK==='salary'?(r.salary?r.salary[1]:0):r[sortK];
+  rows.sort((a,b)=>{const x=key(a),y=key(b);return (x>y?1:x<y?-1:0)*sortDir});
+  $('#empty').style.display=rows.length?'none':'block';
+  if(!rows.length)$('#empty').textContent='No jobs match these filters. Try widening them.';
+  $('#t tbody').innerHTML=rows.map(r=>`<tr>
+    <td class="score">${r.ats}<div class="meter"><i style="width:${r.ats}%"></i></div></td>
+    <td><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.title)}</a></td>
+    <td>${esc(r.company)}</td><td>${esc(r.location)}</td><td>${EMPLABEL[r.employment]}</td>
+    <td>${r.salary?money(r.salary[0])+' – '+money(r.salary[1]):'<span class="muted">not listed</span>'}</td>
+    <td class="reason"><b>Matching</b><br>${r.matched.map(s=>`<span class="tag ok">${esc(s)}</span>`).join('')||'<span class="muted">none</span>'}<br>
+      <b>Job asks for, not on resume</b><br>${r.missing.map(s=>`<span class="tag miss">${esc(s)}</span>`).join('')||'<span class="muted">nothing missing</span>'}</td></tr>`).join('');
+}
+$('#go').onclick=e=>{e.preventDefault();run()};
+$('#minats').oninput=e=>$('#mv').textContent=e.target.value;
+$('#refresh').onclick=async()=>{await fetch('/api/refresh',{method:'POST'});poll()};
+document.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k;sortDir=k===sortK?-sortDir:(k==='ats'?-1:1);sortK=k;render()});
+init();
+</script>
+</body>
+</html>
